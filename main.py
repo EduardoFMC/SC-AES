@@ -91,7 +91,6 @@ if __name__ == "__main__":
     t = [x[i:i+16] for i in range(0, len(x), 16)]
     # print every i of t
 
-    for element in t:
-        print(text_to_matrix(element))
+    print(t)
 
 
