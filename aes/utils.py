@@ -1,9 +1,12 @@
 # padding of the message to be encrypted
 def padding(message):
 
-    remainder = 16 - len(message) % 16
+    if(len(message) % 16 == 0):
+        remainder = 0
+    else:
+        remainder = 16 - len(message) % 16
 
-    return message + bytes([remainder] * remainder)
+    return message + ("X"*remainder)
 
 # return a string separated ion blocks of 4 bytes in a list
 def separate_into_blocks_of_4_bytes(key):

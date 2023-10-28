@@ -1,3 +1,6 @@
+import utils as utils
+import key_expansion as expansion
+
 SBOX = [
     0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67, 0x2B, 0xFE, 0xD7, 0xAB, 0x76,
     0xCA, 0x82, 0xC9, 0x7D, 0xFA, 0x59, 0x47, 0xF0, 0xAD, 0xD4, 0xA2, 0xAF, 0x9C, 0xA4, 0x72, 0xC0,
@@ -75,14 +78,51 @@ L_TABLE = [ 0x00, 0x00, 0x19, 0x01, 0x32, 0x02, 0x1A, 0xC6, 0x4B, 0xC7, 0x1B, 0x
 # 16 bytes of the expanded key then the expanded key bytes 1-16 are never used again. The next time the Add
 # Round Key function is called bytes 17-32 are XORed against the state
 
-def aes(mensage):
-    return
 
-def enc_block_round(state, round_key):
+def print_estado(state: list[int]):
+    new_state = []
+    for i in range(4):
+        new_state.append(hex(state[i]))
+    return new_state
+
+
+def aes(block: str, sub_keys: list[int], rounds: int):
+
+    state = prepare_block(block)
+
+    #rodada 0
+    state = add_round_key(block, sub_keys[0:4])
+
+    print("após rodada 0")
+    print_estado(state)
+
+    for round in range(rounds):
+        if round + 1 < rounds:
+            state = enc_block_round(state, sub_keys[(4*round + 4): (4*round + 8)])
+        else:
+            #última rodada
+            state = add_round_key(shift_row(byte_sub(state)),sub_keys[(4*round + 4): (4*round + 8)])
+        
+        print(f"após rodada {round+1}")
+        print_estado(state)
+
+    return state
+
+def prepare_block(block: str):
+    state = []
+
+    for i in range(4):
+        aux = 0
+        for j in range(4):
+            aux = aux + (ord(block[i*4 + j]) << 8*(3 - j))
+        state.append(aux)    
+    return state
+
+def enc_block_round(state: list[int], round_key: list[int]):
 
     return add_round_key(mix_column(shift_row(byte_sub(state))), round_key)
 
-def add_round_key(state, round_key):
+def add_round_key(state: list[int], round_key: list[int]):
     new_state = []
     for i in range(4):
         new_state.append(state[i] ^ round_key[i])
@@ -91,7 +131,7 @@ def add_round_key(state, round_key):
 
 #During encryption each value of the state is replaced with the corresponding SBOX value
 
-def byte_sub(state):
+def byte_sub(state: list[int]):
     new_state = []
     for i in range(4):
         aux = 0
@@ -106,7 +146,7 @@ def byte_sub(state):
 #position after the shift. The circular part of it specifies that the byte in the last position shifted one space will end up
 #in the first position in the same row. 
 
-def shift_row(state):
+def shift_row(state: list[int]):
     state_matrix = gen_matriz(state)
 
     state_matrix[1] = state_matrix[1][1:] + [state_matrix[1][0]]
@@ -116,7 +156,7 @@ def shift_row(state):
     return reverse_gen_matriz(state_matrix)
 
 
-def mix_column(state):
+def mix_column(state: list[int]):
     mult_matrix = [ [0x2,0x3,0x1,0x1],
                     [0x1,0x2,0x3,0x1],
                     [0x1,0x1,0x2,0x3],
@@ -138,7 +178,7 @@ def mix_column(state):
 
     return result_matrix
 
-def mul_galois(h, i):
+def mul_galois(h: int, i: int):
     if(i == 1):
         return h
     else:
@@ -149,7 +189,7 @@ def mul_galois(h, i):
         return E_TABLE[aux]
     
 
-def gen_matriz(state):
+def gen_matriz(state: list[int]):
     matrix = [[], [], [], []]
 
     for i in range(4):
@@ -168,7 +208,7 @@ def gen_matriz(state):
                 matrix[j].append(aux)                  
     return matrix
 
-def reverse_gen_matriz(matrix):
+def reverse_gen_matriz(matrix: list[list[int]]):
     new_state = [0x0, 0x0, 0x0, 0x0]
 
     for i in range(4):
