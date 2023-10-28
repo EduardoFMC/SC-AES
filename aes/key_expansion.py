@@ -82,12 +82,14 @@ def expand_key(KeySize: int, key_original: list[bytes]):
             x= xor(a, [b,0,0,0])
             #print(x)
             
-            expanded_key.append(bytes((xor(xor(a, [b,0,0,0]), c))))
+            #expanded_key.append(bytes((xor(xor(a, [b,0,0,0]), c))))
+            expanded_key.append(((xor(xor(a, [b,0,0,0]), c))))
 
         else: 
-            expanded_key.append(bytes((xor(EK((index-1)*4), EK((index-4)*4)))))
+            # expanded_key.append(bytes((xor(EK((index-1)*4), EK((index-4)*4)))))
+            expanded_key.append(((xor(EK((index-1)*4), EK((index-4)*4)))))
 
-    return len(expanded_key)
+    return (expanded_key)
         
 
 
