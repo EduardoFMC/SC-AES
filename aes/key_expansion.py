@@ -6,8 +6,8 @@ import hashlib, base64
 from aes.utils import xor
 
 RCON = [
-    0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40,
-    0x80, 0x1B, 0x36, 0x6C, 0xD8, 0xAB, 0x4D, 0x9A,
+    0x01000000, 0x02000000, 0x04000000, 0x08000000, 0x10000000, 0x20000000, 0x40000000,
+    0x80000000, 0x1B000000, 0x36000000, 0x6C000000, 0xD8000000, 0xAB000000, 0x4D000000, 0x9A000000,
     
 ]
 
@@ -77,10 +77,7 @@ def expand_key(KeySize: int, key_original: list[bytes]):
             a = SubWord(RotWord(EK((index-1)*4)))
             b = Rcon(index)
             c = EK((index-4)*4)
-            #print(a)
-            #print(b)
-            x= xor(a, [b,0,0,0])
-            #print(x)
+            #x= xor(a, [b,0,0,0])
             
             #expanded_key.append(bytes((xor(xor(a, [b,0,0,0]), c))))
             expanded_key.append(((xor(xor(a, [b,0,0,0]), c))))
@@ -96,50 +93,50 @@ def expand_key_int(KeySize: int, key_original: int):
 
     expanded_key = []
 
-    # K function returns 4 bytes of the Key after the specified offset.
-    def K(offset: int):
-        # Convert the integer to a 4-byte representation
-        key_bytes = key_original.to_bytes(16, byteorder='big')
-        return key_bytes[offset : offset + 4]
+    def K(offset: int): return key_original[ offset ]
 
-    # EK function returns 4 bytes of the Expanded Key after the specified offset.
-    def EK(offset: int):
-        return expanded_key[offset // 4]
+    def EK(offset: int): return expanded_key[ offset//4 ]
 
-    # Returns a 4-byte value based on the RCON table.
     def Rcon(round: int):
-        i = int(round / (KeySize / 4)) - 1
+
+        i = int(( round/(KeySize/4) ) -1)
         return RCON[i]
-
-    # Circular shift on 4 bytes similar to RotWord
-    def RotWord(word: bytes):
-        return word[1:] + word[:1]
-
-    # S-box value substitution
-    def SubWord(word: bytes):
-        return bytes([SBOX[b] for b in word])
-
-    # Convert the initial key integer to bytes
-    key_bytes = key_original.to_bytes(16, byteorder='big')
     
-    expanded_key.append(K(0 * 4))
-    expanded_key.append(K(1 * 4))
-    expanded_key.append(K(2 * 4))
-    expanded_key.append(K(3 * 4))
+    def RotWord(word: bytes): return (((word << 8) | ((word >> 24) & 0xFF)) & 0xFFFFFFFF)
+    
+    def SubWord(word: int):
+    
+        aux = 0
+        for j in range(4):
+            aux = aux + (SBOX[(word & (0xFF << 8*j)) >> 8*j] << 8*j)
 
+        return aux
+    
+    
+    expanded_key.append(K(0))
+    expanded_key.append(K(1))
+    expanded_key.append(K(2))
+    expanded_key.append(K(3))
+    
     for index in range(4, 44):
+        
         if index % 4 == 0:
-            a = SubWord(RotWord(EK((index - 1) * 4)))
+            
+            a = SubWord(RotWord(EK((index-1)*4)))
             b = Rcon(index)
-            c = EK((index - 4) * 4)
-            x = bytes([a_i ^ b for a_i in a])
-            expanded_key.append(bytes([x_i ^ c_i for x_i, c_i in zip(x, c)]))
-        else:
-            prev_key_bytes = expanded_key[-1]
-            prev_key = int.from_bytes(prev_key_bytes, byteorder='big')
-            current_key = int.from_bytes(K((index - 1) * 4), byteorder='big')
-            new_key = prev_key ^ current_key
-            expanded_key.append(new_key.to_bytes(16, byteorder='big'))
+            c = EK((index-4)*4)
+            x= a ^ b
+            #print("a: ", hex(a))
+            #print("b: ", hex(b))
+            #print("c: ", hex(c))
+            #print("x: ", hex(x))
+            #expanded_key.append(bytes((xor(xor(a, [b,0,0,0]), c))))
+            expanded_key.append(x ^ c)
+
+        else: 
+            # expanded_key.append(bytes((xor(EK((index-1)*4), EK((index-4)*4)))))
+            expanded_key.append(((EK((index-1)*4) ^ EK((index-4)*4))))
+        
 
     return expanded_key
 
