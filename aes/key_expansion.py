@@ -3,7 +3,7 @@
 import re
 import math
 import hashlib, base64
-from utils import xor
+from aes.utils import xor
 
 RCON = [
     0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40,
@@ -90,4 +90,57 @@ def expand_key(KeySize: int, key_original: list[bytes]):
             expanded_key.append(((xor(EK((index-1)*4), EK((index-4)*4)))))
 
     return (expanded_key)
-        
+
+
+def expand_key_int(KeySize: int, key_original: int):
+
+    expanded_key = []
+
+    # K function returns 4 bytes of the Key after the specified offset.
+    def K(offset: int):
+        # Convert the integer to a 4-byte representation
+        key_bytes = key_original.to_bytes(16, byteorder='big')
+        return key_bytes[offset : offset + 4]
+
+    # EK function returns 4 bytes of the Expanded Key after the specified offset.
+    def EK(offset: int):
+        return expanded_key[offset // 4]
+
+    # Returns a 4-byte value based on the RCON table.
+    def Rcon(round: int):
+        i = int(round / (KeySize / 4)) - 1
+        return RCON[i]
+
+    # Circular shift on 4 bytes similar to RotWord
+    def RotWord(word: bytes):
+        return word[1:] + word[:1]
+
+    # S-box value substitution
+    def SubWord(word: bytes):
+        return bytes([SBOX[b] for b in word])
+
+    # Convert the initial key integer to bytes
+    key_bytes = key_original.to_bytes(16, byteorder='big')
+    
+    expanded_key.append(K(0 * 4))
+    expanded_key.append(K(1 * 4))
+    expanded_key.append(K(2 * 4))
+    expanded_key.append(K(3 * 4))
+
+    for index in range(4, 44):
+        if index % 4 == 0:
+            a = SubWord(RotWord(EK((index - 1) * 4)))
+            b = Rcon(index)
+            c = EK((index - 4) * 4)
+            x = bytes([a_i ^ b for a_i in a])
+            expanded_key.append(bytes([x_i ^ c_i for x_i, c_i in zip(x, c)]))
+        else:
+            prev_key_bytes = expanded_key[-1]
+            prev_key = int.from_bytes(prev_key_bytes, byteorder='big')
+            current_key = int.from_bytes(K((index - 1) * 4), byteorder='big')
+            new_key = prev_key ^ current_key
+            expanded_key.append(new_key.to_bytes(16, byteorder='big'))
+
+    return expanded_key
+
+

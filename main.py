@@ -51,11 +51,18 @@ if __name__ == "__main__":
     print(blocks) """
 
     
-    input_string = bytes("0123456789abcdef".encode("utf-8"))
+    input_string = 0x8a31ce23035aba9848427a51befa2ff7
     print(input_string)
     print()
 
-    expanded_key = key_expansion.expand_key(16, input_string)
+    #expanded_key = key_expansion.expand_key_int(16, input_string)
+    #print(expanded_key)
+
+    # Example usage:
+    input_int = 0x8a31ce23035aba9848427a51befa2ff7
+    expanded_key = key_expansion.expand_key_int(16, input_int)
     print(expanded_key)
+    """ for key_bytes in expanded_key:
+        print(key_bytes.hex()) """
 
 
