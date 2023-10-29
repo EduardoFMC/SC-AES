@@ -3,7 +3,7 @@
 import re
 import math
 import hashlib, base64
-from aes.utils import xor
+from utils import xor
 
 RCON = [
     0x01000000, 0x02000000, 0x04000000, 0x08000000, 0x10000000, 0x20000000, 0x40000000,
