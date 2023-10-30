@@ -33,6 +33,7 @@ SBOX = [
 ]
 
 if __name__ == "__main__":
+    
     acao = ""
 
     print("Bem vindo ao cifrador e decifrador AES: ECB e CTR\n")
@@ -87,3 +88,25 @@ if __name__ == "__main__":
         input()
     
     print("EXIT")
+
+    print("Trabalho 2 de Segurança Computacional :)\n")
+    
+
+    """ input_string = bytes("0123456789abcdef".encode("utf-8"))
+    print(input_string)
+    print()
+
+    expanded_key = key_expansion.expand_key(16, input_string)
+    print(expanded_key) """
+
+    # Example usage:
+    _16bytes = 0x11111111000000000000000000000000
+    words = []
+    for i in range(4):
+        words.append((_16bytes & (0xFFFFFFFF << 32*(3 - i))) >> 32*(3 - i))
+    print([hex(i) for i in words])
+    expanded_key = key_expansion.expand_key_int(16, words)
+    
+    print()
+    print(expanded_key)
+    print([hex(i) for i in expanded_key])

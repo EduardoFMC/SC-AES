@@ -142,3 +142,19 @@ def text_to_matrix(text):
 def xor(a, b):
     
     return [i ^ j for i, j in zip(a, b)]
+
+def hex2binary(hex):
+	return bin(int(str(hex), 16))
+
+def hexor(hex1, hex2):
+	
+	bin1 = hex2binary(hex1)
+	bin2 = hex2binary(hex2)
+	
+	xord = int(bin1, 2) ^ int(bin2, 2)
+	hexed = hex(xord)[2:]
+	
+	if len(hexed) != 8:
+		hexed = '0' + hexed
+		
+	return hexed
