@@ -20,25 +20,6 @@ SBOX = [
     0x8C, 0xA1, 0x89, 0x0D, 0xBF, 0xE6, 0x42, 0x68, 0x41, 0x99, 0x2D, 0x0F, 0xB0, 0x54, 0xBB, 0x16,
 ]
 
-REVERSED_SBOX = [
-    0x52, 0x09, 0x6A, 0xD5, 0x30, 0x36, 0xA5, 0x38, 0xBF, 0x40, 0xA3, 0x9E, 0x81, 0xF3, 0xD7, 0xFB,
-    0x7C, 0xE3, 0x39, 0x82, 0x9B, 0x2F, 0xFF, 0x87, 0x34, 0x8E, 0x43, 0x44, 0xC4, 0xDE, 0xE9, 0xCB,
-    0x54, 0x7B, 0x94, 0x32, 0xA6, 0xC2, 0x23, 0x3D, 0xEE, 0x4C, 0x95, 0x0B, 0x42, 0xFA, 0xC3, 0x4E,
-    0x08, 0x2E, 0xA1, 0x66, 0x28, 0xD9, 0x24, 0xB2, 0x76, 0x5B, 0xA2, 0x49, 0x6D, 0x8B, 0xD1, 0x25,
-    0x72, 0xF8, 0xF6, 0x64, 0x86, 0x68, 0x98, 0x16, 0xD4, 0xA4, 0x5C, 0xCC, 0x5D, 0x65, 0xB6, 0x92,
-    0x6C, 0x70, 0x48, 0x50, 0xFD, 0xED, 0xB9, 0xDA, 0x5E, 0x15, 0x46, 0x57, 0xA7, 0x8D, 0x9D, 0x84,
-    0x90, 0xD8, 0xAB, 0x00, 0x8C, 0xBC, 0xD3, 0x0A, 0xF7, 0xE4, 0x58, 0x05, 0xB8, 0xB3, 0x45, 0x06,
-    0xD0, 0x2C, 0x1E, 0x8F, 0xCA, 0x3F, 0x0F, 0x02, 0xC1, 0xAF, 0xBD, 0x03, 0x01, 0x13, 0x8A, 0x6B,
-    0x3A, 0x91, 0x11, 0x41, 0x4F, 0x67, 0xDC, 0xEA, 0x97, 0xF2, 0xCF, 0xCE, 0xF0, 0xB4, 0xE6, 0x73,
-    0x96, 0xAC, 0x74, 0x22, 0xE7, 0xAD, 0x35, 0x85, 0xE2, 0xF9, 0x37, 0xE8, 0x1C, 0x75, 0xDF, 0x6E,
-    0x47, 0xF1, 0x1A, 0x71, 0x1D, 0x29, 0xC5, 0x89, 0x6F, 0xB7, 0x62, 0x0E, 0xAA, 0x18, 0xBE, 0x1B,
-    0xFC, 0x56, 0x3E, 0x4B, 0xC6, 0xD2, 0x79, 0x20, 0x9A, 0xDB, 0xC0, 0xFE, 0x78, 0xCD, 0x5A, 0xF4,
-    0x1F, 0xDD, 0xA8, 0x33, 0x88, 0x07, 0xC7, 0x31, 0xB1, 0x12, 0x10, 0x59, 0x27, 0x80, 0xEC, 0x5F,
-    0x60, 0x51, 0x7F, 0xA9, 0x19, 0xB5, 0x4A, 0x0D, 0x2D, 0xE5, 0x7A, 0x9F, 0x93, 0xC9, 0x9C, 0xEF,
-    0xA0, 0xE0, 0x3B, 0x4D, 0xAE, 0x2A, 0xF5, 0xB0, 0xC8, 0xEB, 0xBB, 0x3C, 0x83, 0x53, 0x99, 0x61,
-    0x17, 0x2B, 0x04, 0x7E, 0xBA, 0x77, 0xD6, 0x26, 0xE1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0C, 0x7D
-]
-
 E_TABLE = [ 
     0x01, 0x03, 0x05, 0x0F, 0x11, 0x33, 0x55, 0xFF, 0x1A, 0x2E, 0x72, 0x96, 0xA1, 0xF8, 0x13, 0x35,
     0x5F, 0xE1, 0x38, 0x48, 0xD8, 0x73, 0x95, 0xA4, 0xF7, 0x02, 0x06, 0x0A, 0x1E, 0x22, 0x66, 0xAA,
@@ -75,34 +56,65 @@ L_TABLE = [
     0x53, 0x39, 0x84, 0x3C, 0x41, 0xA2, 0x6D, 0x47, 0x14, 0x2A, 0x9E, 0x5D, 0x56, 0xF2, 0xD3, 0xAB,
     0x44, 0x11, 0x92, 0xD9, 0x23, 0x20, 0x2E, 0x89, 0xB4, 0x7C, 0xB8, 0x26, 0x77, 0x99, 0xE3, 0xA5,
     0x67, 0x4A, 0xED, 0xDE, 0xC5, 0x31, 0xFE, 0x18, 0x0D, 0x63, 0x8C, 0x80, 0xC0, 0xF7, 0x70, 0x07 
-]  
+]
 
-# Each of the 16 bytes of the state is XORed against each of the 16 bytes of a portion of the expanded key for the
-# current round. The Expanded Key bytes are never reused. So once the first 16 bytes are XORed against the first
-# 16 bytes of the expanded key then the expanded key bytes 1-16 are never used again. The next time the Add
-# Round Key function is called bytes 17-32 are XORed against the state
+#modo de operação CTR: recebe nome do arquivo, chave, rodadas, vetor de 16bytes e modo de operação ("cif" ou "dec")
+def ctr(nomeArquivo, key, rounds, iv, mode):
+    bytes_result = b''
+    counter = int.from_bytes(iv, 'big')
+    sub_keys = expansion.expand_key(key)
+    blocks_16bytes = utils.prepare_mensage_ctr(nomeArquivo, mode)
+    
+    for i in range(0, len(blocks_16bytes)):
+        block_counter = utils.ajeita_block_counter(counter.to_bytes(16, 'big'))
+        
+        aux = aes(block_counter, sub_keys, rounds)
+        key_stream = b''
+        for j in range(4):
+            key_stream = key_stream + aux[j].to_bytes(4, 'big')
+        
+        bytes_result = bytes_result + (int.from_bytes(blocks_16bytes[i], 'big') ^ int.from_bytes(key_stream,'big')).to_bytes(16, 'big')
+        counter += 1
+    
+    if mode == "cif":
+        with open('cifra_ctr.txt', 'wb') as a:
+            a.write(bytes_result)
+            a.close()
+    else:
+        bytes_added = bytes_result[len(bytes_result) - 1]
+        bytes_result = bytes_result[0:len(bytes_result) - bytes_added]
+        print(bytes_added)
 
-def cypher_ECB(mensage, key, rounds):
-    blocks = prepare_mensage(utils.padding(mensage))
+        with open('decifrado_ctr.txt', 'wb') as a:
+            a.write(bytes_result)
+            a.close()
 
-def print_estado(state: list[int]):
-    new_state = []
-    for i in range(4):
-        new_state.append(hex(state[i]))
-    print(new_state)
+    return bytes_result
 
-def prepare_mensage(mensage):
-    return
+#cifrador no modo ECB
+def cypher_ECB(nomeArquivo, key, rounds):
+    bytes_encripted = b''
 
-def aes(block: str, sub_keys: list[int], rounds: int):
+    sub_keys = expansion.expand_key(key)
 
-    state = prepare_block(block)
+    blocks_4bytes = utils.prepare_mensage_ecb(nomeArquivo)
 
+    for i in range(0, len(blocks_4bytes), 4):
+        aux = aes(blocks_4bytes[i: i + 4], sub_keys, rounds)
+        for j in range(4):
+            bytes_encripted = bytes_encripted + aux[j].to_bytes(4, 'big')
+    
+    with open('test_encripted.txt', 'wb') as a:
+        a.write(bytes_encripted)
+        a.close()
+
+    return bytes_encripted
+
+#bloco de cifração AES. Recebe o bloco de 16bytes em forma de uma lista com 4 bytes cada elemento
+#recebe as subchaves em uma lista com 4 bytes cada elemento e o numero de rodas
+def aes(block, sub_keys: list[int], rounds: int):
     #rodada 0
     state = add_round_key(block, sub_keys[0:4])
-
-    print("após rodada 0")
-    print_estado(state)
 
     for round in range(rounds):
         if round + 1 < rounds:
@@ -110,25 +122,14 @@ def aes(block: str, sub_keys: list[int], rounds: int):
         else:
             #última rodada
             state = add_round_key(shift_row(byte_sub(state)),sub_keys[(4*round + 4): (4*round + 8)])
-        
-        print(f"após rodada {round+1}")
-        print_estado(state)
 
     return state
 
-def prepare_block(block: str):
-    state = []
-
-    for i in range(4):
-        aux = 0
-        for j in range(4):
-            aux = aux + (ord(block[i*4 + j]) << 8*(3 - j))
-        state.append(aux)    
-    return state
-
+#encripta uma rodada do AES
 def enc_block_round(state: list[int], round_key: list[int]):
 
     return add_round_key(mix_column(shift_row(byte_sub(state))), round_key)
+
 
 def add_round_key(state: list[int], round_key: list[int]):
     new_state = []
@@ -136,8 +137,6 @@ def add_round_key(state: list[int], round_key: list[int]):
         new_state.append(state[i] ^ round_key[i])
 
     return new_state
-
-#During encryption each value of the state is replaced with the corresponding SBOX value
 
 def byte_sub(state: list[int]):
     new_state = []
@@ -149,19 +148,14 @@ def byte_sub(state: list[int]):
 
     return new_state
 
-#Arranges the state in a matrix and then performs a circular shift for each row. This is not a bit wise shift. The
-#circular shift just moves each byte one space over. A byte that was in the second position may end up in the third
-#position after the shift. The circular part of it specifies that the byte in the last position shifted one space will end up
-#in the first position in the same row. 
-
 def shift_row(state: list[int]):
-    state_matrix = gen_matriz(state)
+    state_matrix = utils.gen_matriz(state)
 
     state_matrix[1] = state_matrix[1][1:] + [state_matrix[1][0]]
     state_matrix[2] = state_matrix[2][2:] + state_matrix[2][0:2]
     state_matrix[3] = [state_matrix[3][3]] + state_matrix[3][0:3]
 
-    return reverse_gen_matriz(state_matrix)
+    return utils.reverse_gen_matriz(state_matrix)
 
 
 def mix_column(state: list[int]):
@@ -170,7 +164,7 @@ def mix_column(state: list[int]):
                     [0x1,0x1,0x2,0x3],
                     [0x3,0x1,0x1,0x2] ]
     
-    state_matrix = gen_matriz(state)
+    state_matrix = utils.gen_matriz(state)
 
     result_matrix = [[], [], [], []]
 
@@ -182,7 +176,7 @@ def mix_column(state: list[int]):
                     mul_galois(state_matrix[linha + 2 - linha][coluna], mult_matrix[linha][coluna + 2 - coluna]) ^
                     mul_galois(state_matrix[linha + 3 - linha][coluna], mult_matrix[linha][coluna + 3 - coluna])
             )
-    result_matrix = reverse_gen_matriz(result_matrix)
+    result_matrix = utils.reverse_gen_matriz(result_matrix)
 
     return result_matrix
 
@@ -199,41 +193,3 @@ def mul_galois(h: int, i: int):
             aux = aux - 0xFF
 
         return E_TABLE[aux]
-    
-
-def gen_matriz(state: list[int]):
-    matrix = [[], [], [], []]
-
-    for i in range(4):
-        for j in range(4):
-            if j == 0:
-                aux = state[i] & 0xFF000000
-                matrix[j].append(aux >> 24)
-            elif j == 1:
-                aux = state[i] & 0x00FF0000
-                matrix[j].append(aux >> 16)
-            elif j == 2:
-                aux = state[i] & 0x0000FF00
-                matrix[j].append(aux >> 8)
-            elif j == 3:
-                aux = state[i] & 0x000000FF
-                matrix[j].append(aux)                  
-    return matrix
-
-def reverse_gen_matriz(matrix: list[list[int]]):
-    new_state = [0x0, 0x0, 0x0, 0x0]
-
-    for i in range(4):
-        for j in range(4):
-            if i == 0:
-                new_state[j] = new_state[j] + (matrix[i][j] << 24)
-            elif i == 1:
-                new_state[j] = new_state[j] + (matrix[i][j] << 16)
-            elif i == 2:
-                new_state[j] = new_state[j] + (matrix[i][j] << 8)
-            elif i == 3:
-                new_state[j] = new_state[j] + matrix[i][j]
-
-    return new_state
-
-

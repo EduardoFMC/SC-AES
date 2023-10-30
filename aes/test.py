@@ -1,5 +1,6 @@
 import utils as utils
 import key_expansion as expansion
+
 SBOX = [
     0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67, 0x2B, 0xFE, 0xD7, 0xAB, 0x76,
     0xCA, 0x82, 0xC9, 0x7D, 0xFA, 0x59, 0x47, 0xF0, 0xAD, 0xD4, 0xA2, 0xAF, 0x9C, 0xA4, 0x72, 0xC0,
@@ -76,9 +77,84 @@ L_TABLE = [
     0x67, 0x4A, 0xED, 0xDE, 0xC5, 0x31, 0xFE, 0x18, 0x0D, 0x63, 0x8C, 0x80, 0xC0, 0xF7, 0x70, 0x07 
 ]  
 
+# Each of the 16 bytes of the state is XORed against each of the 16 bytes of a portion of the expanded key for the
+# current round. The Expanded Key bytes are never reused. So once the first 16 bytes are XORed against the first
+# 16 bytes of the expanded key then the expanded key bytes 1-16 are never used again. The next time the Add
+# Round Key function is called bytes 17-32 are XORed against the state
 
-def cypher_ECB(mensage, key, rounds):
-    blocks = prepare_mensage(utils.padding(mensage))
+def ctr(nomeArquivo, key, rounds, iv, mode):
+    bytes_result = b''
+    counter = int.from_bytes(iv, 'big')
+    sub_keys = key
+    blocks_16bytes = prepare_mensage_ctr(nomeArquivo, mode)
+    
+    for i in range(0, len(blocks_16bytes)):
+        block_counter = ajeita_block_counter(counter.to_bytes(16, 'big'))
+        
+        aux = aes(block_counter, sub_keys, rounds)
+        key_stream = b''
+        for j in range(4):
+            key_stream = key_stream + aux[j].to_bytes(4, 'big')
+        
+        bytes_result = bytes_result + (int.from_bytes(blocks_16bytes[i], 'big') ^ int.from_bytes(key_stream,'big')).to_bytes(16, 'big')
+        counter += 1
+    
+    if mode == "cif":
+        with open('cifra_ctr.txt', 'wb') as a:
+            a.write(bytes_result)
+            a.close()
+    else:
+        bytes_added = bytes_result[len(bytes_result) - 1]
+        bytes_result = bytes_result[0:len(bytes_result) - bytes_added]
+        print(bytes_added)
+
+        with open('decifrado_ctr.txt', 'wb') as a:
+            a.write(bytes_result)
+            a.close()
+
+
+    return bytes_result
+
+def ajeita_block_counter(bytes):
+    list_int = []
+
+    for i in range(0, 16, 4):
+        list_int.append(int.from_bytes(bytes[i : i + 4], 'big'))
+    
+    return list_int
+
+def prepare_mensage_ctr(nomeArquivo, mode):
+    blocks_16bytes = []
+
+    with open(nomeArquivo, 'rb') as b:
+        bytes = b.read()
+        if mode == "cif":
+            bytes = utils.padding(bytes)
+
+        for i in range(0, len(bytes), 16):
+            blocks_16bytes.append(bytes[i: i + 16])
+        b.close()
+    
+    return blocks_16bytes
+
+def cypher_ECB(nomeArquivo, key, rounds):
+    bytes_encripted = b''
+
+    sub_keys = expansion.expand_key(key)
+
+    blocks_4bytes = prepare_mensage_ecb(nomeArquivo)
+
+    for i in range(0, len(blocks_4bytes), 4):
+        aux = aes(blocks_4bytes[i: i + 4], sub_keys, rounds)
+        for j in range(4):
+            bytes_encripted = bytes_encripted + aux[j].to_bytes(4, 'big')
+    
+    with open('cifra_ecb.txt', 'wb') as a:
+        a.write(bytes_encripted)
+        a.close()
+
+    return bytes_encripted
+        
 
 def print_estado(state: list[int]):
     new_state = []
@@ -86,15 +162,29 @@ def print_estado(state: list[int]):
         new_state.append(hex(state[i]))
     print(new_state)
 
-def prepare_mensage(mensage):
-    return
+def prepare_mensage_ecb(arquivo):
+    blocos = []
 
-def aes(block: str, sub_keys: list[int], rounds: int):
+    with open(arquivo, "rb") as a:
+        bytes = a.read()
+        
+        bytes = utils.padding(bytes)
+        
+        for i in range(0, len(bytes), 4):
+            blocos.append(int.from_bytes(bytes[i : i + 4], "big"))
+        
+        a.close()
+
+    return blocos
+
+def aes(block, sub_keys: list[int], rounds: int):
 
     #state = prepare_block(block)
-    state = block
+    print("bloco q será encriptado")
+    print_estado(block)
 
     #rodada 0
+    
     state = add_round_key(block, sub_keys[0:4])
 
     print("após rodada 0")
@@ -112,15 +202,6 @@ def aes(block: str, sub_keys: list[int], rounds: int):
 
     return state
 
-def prepare_block(block: str):
-    state = []
-
-    for i in range(4):
-        aux = 0
-        for j in range(4):
-            aux = aux + (ord(block[i*4 + j]) << 8*(3 - j))
-        state.append(aux)    
-    return state
 
 def enc_block_round(state: list[int], round_key: list[int]):
 
@@ -234,172 +315,10 @@ def reverse_gen_matriz(matrix: list[list[int]]):
 
 
 
-
-def print_estado(state):
-    new_state = []
-    for i in range(4):
-        new_state.append(hex(state[i]))
-    print(new_state)
-
-
-def dec_aes(block , sub_keys, rounds: int):
-
-    dec_sub_keys = []
-
-    for i in range(rounds + 1):
-        dec_sub_keys = sub_keys[4*i: (4*i + 4)] + dec_sub_keys
-
-    #rodada 0
-    state = add_round_key(block, dec_sub_keys[0:4])
-
-    print("após rodada 0")
-    print_estado(state)
-
-    for round in range(rounds):
-        if round + 1 < rounds:
-            state = dec_block_round(state, dec_sub_keys[(4*round + 4): (4*round + 8)])
-        else:
-            #última rodada
-            state = add_round_key(dec_byte_sub(dec_shift_row(state)),dec_sub_keys[(4*round + 4): (4*round + 8)])
-        
-        print(f"após rodada {round+1}")
-        print_estado(state)
-
-    return state
-
-def prepare_block(block: str):
-    state = []
-
-    for i in range(4):
-        aux = 0
-        for j in range(4):
-            aux = aux + (ord(block[i*4 + j]) << 8*(3 - j))
-        state.append(aux)    
-    return state
-
-def dec_block_round(state, round_key):
-
-    return dec_mix_column(add_round_key(dec_byte_sub(dec_shift_row(state)), round_key))
-
-def add_round_key(state, round_key):
-    new_state = []
-    for i in range(4):
-        new_state.append(state[i] ^ round_key[i])
-    print("chave usada")
-    print_estado(round_key)
-    print("apos add_round")
-    print_estado(new_state)
-    return new_state
-
-#During encryption each value of the state is replaced with the corresponding SBOX value
-
-def dec_byte_sub(state):
-    new_state = []
-    for i in range(4):
-        aux = 0
-        for j in range(4):
-            aux = aux + (REVERSED_SBOX[(state[i] & (0xFF << 8*j)) >> 8*j] << 8*j)
-        new_state.append(aux)
-    print("apos byteSub")
-    print_estado(new_state)
-    return new_state
-
-#Arranges the state in a matrix and then performs a circular shift for each row. This is not a bit wise shift. The
-#circular shift just moves each byte one space over. A byte that was in the second position may end up in the third
-#position after the shift. The circular part of it specifies that the byte in the last position shifted one space will end up
-#in the first position in the same row. 
-
-def dec_shift_row(state):
-    state_matrix = gen_matriz(state)
-
-    state_matrix[1] = [state_matrix[1][3]] + state_matrix[1][0:3]
-    state_matrix[2] = state_matrix[2][2:] + state_matrix[2][0:2]
-    state_matrix[3] = state_matrix[3][1:] + [state_matrix[3][0]]
-
-    print("apos shiftRow")
-    print_estado(reverse_gen_matriz(state_matrix))
-    return reverse_gen_matriz(state_matrix)
-
-
-def dec_mix_column(state):
-    mult_matrix = [ [0xE,0xB,0xD,0x9],
-                    [0x9,0xE,0xB,0xD],
-                    [0xD,0x9,0xE,0xB],
-                    [0xB,0xD,0x9,0xE] ]
-    
-    state_matrix = gen_matriz(state)
-
-    result_matrix = [[], [], [], []]
-
-    for coluna in range(4):
-        for linha in range(4):
-            result_matrix[linha].append(
-                    mul_galois(state_matrix[linha - linha][coluna], mult_matrix[linha][coluna - coluna]) ^
-                    mul_galois(state_matrix[linha + 1 - linha][coluna], mult_matrix[linha][coluna + 1 - coluna]) ^
-                    mul_galois(state_matrix[linha + 2 - linha][coluna], mult_matrix[linha][coluna + 2 - coluna]) ^
-                    mul_galois(state_matrix[linha + 3 - linha][coluna], mult_matrix[linha][coluna + 3 - coluna])
-            )
-    result_matrix = reverse_gen_matriz(result_matrix)
-
-    print("apos mixColumn")
-    print_estado(result_matrix)
-    return result_matrix
-
-def mul_galois(h: int, i: int):
-    if(i == 1):
-        return h
-    if(h == 1):
-        return i
-    if(h == 0 or i == 0):
-        return 0
-    else:
-        aux = L_TABLE[h] + L_TABLE[i]
-        if aux > 0xFF:
-            aux = aux - 0xFF
-
-        return E_TABLE[aux]
-    
-
-def gen_matriz(state):
-    matrix = [[], [], [], []]
-
-    for i in range(4):
-        for j in range(4):
-            if j == 0:
-                aux = state[i] & 0xFF000000
-                matrix[j].append(aux >> 24)
-            elif j == 1:
-                aux = state[i] & 0x00FF0000
-                matrix[j].append(aux >> 16)
-            elif j == 2:
-                aux = state[i] & 0x0000FF00
-                matrix[j].append(aux >> 8)
-            elif j == 3:
-                aux = state[i] & 0x000000FF
-                matrix[j].append(aux)                  
-    return matrix
-
-def reverse_gen_matriz(matrix):
-    new_state = [0x0, 0x0, 0x0, 0x0]
-
-    for i in range(4):
-        for j in range(4):
-            if i == 0:
-                new_state[j] = new_state[j] + (matrix[i][j] << 24)
-            elif i == 1:
-                new_state[j] = new_state[j] + (matrix[i][j] << 16)
-            elif i == 2:
-                new_state[j] = new_state[j] + (matrix[i][j] << 8)
-            elif i == 3:
-                new_state[j] = new_state[j] + matrix[i][j]
-
-    return new_state
-
-
 state1 = [0x00000101, 0x03030707, 0x0f0f1f1f, 0x3f3f7f7f]
 state2 = [0x85916817, 0xf989d386, 0x106a99c7, 0xa32d0a05]
 key = [0x11111111, 0x00000000, 0x00000000, 0x00000000, 0x73727272, 0x73727272, 0x73727272, 0x73727272, 0x313232fd, 0x4240408f, 0x313232fd, 0x4240408f, 0x3c3b41d1, 0x7e7b015e, 0x4f4933a3, 0x0d09732c, 0x35b43006, 0x4bcf3158, 0x048602fb, 0x098f71d7, 0x56173e07, 0x1dd80f5f, 0x195e0da4, 0x10d17c73, 0x4807b1cd, 0x55dfbe92, 0x4c81b336, 0x5c50cf45, 0x5b8ddf87, 0x0e526115, 0x42d3d223, 0x1e831d66, 0x3729ecf5, 0x397b8de0, 0x7ba85fc3, 0x652b42a5, 0xdd05eab8, 0xe47e6758, 0x9fd6389b, 0xfafd7a3e, 0xbfdf5895, 0x5ba13fcd, 0xc4770756, 0x3e8a7d68]       
-aes(state1, key, 10)
-print()
-dec_aes(state2, key, 10)
-#dec_aes(state, [0x11111111, 0x00000000, 0x00000000, 0x00000000, 0x73727272, 0x73727272, 0x73727272, 0x73727272, 0x313232fd, 0x4240408f, 0x313232fd, 0x4240408f], 3)
+
+print(ctr("teste.txt", key, 10, b'\x6b\xc1\xbe\xe2\x2e\x40\x9f\x96\xe9\x3d\x7e\x11\x73\x93\x17\x2a', "cif"))  
+
+print(ctr("cifra_ctr.txt", key, 10, b'\x6b\xc1\xbe\xe2\x2e\x40\x9f\x96\xe9\x3d\x7e\x11\x73\x93\x17\x2a', "dec"))

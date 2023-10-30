@@ -33,36 +33,57 @@ SBOX = [
 ]
 
 if __name__ == "__main__":
-    print("Trabalho 2 de Segurança Computacional :)\n")
-    
-    with open("key.txt", "rb") as f:
-        s = f.read()
+    acao = ""
+
+    print("Bem vindo ao cifrador e decifrador AES: ECB e CTR\n")
+
+    while True:
+        print("(1): Cifrar ECB")
+        print("(2): Cifrar CTR")
+        print("(3): Decifrar ECB")
+        print("(4): Decifrar CTR")
+        print("(5): Sair\n")
+        print("Escolha a sua ação:", end="")
+        acao = input()
+        print()
+
+        if acao == "1":
+            mensagem = input("Digite nome do arquivo txt: ")
+            chave = input("Digite a chave que será usada para cifrar: ")
+            rodadas = int(input("Digite quantas rodadas serão aplicadas (máx. 10): "))
+
+            
+            print("\nMensagem cifrada:\n")
+            print(cifra, "\n")
         
-    """ x = utils.padding(s)
-    print(x)
+        elif acao == "2":
+            cifra = input("Digite a cifra que será decifrada: ")
+            chave = input("Digite a chave que será usada para decifrar: ")
+
+            
+            print("\nMensagem cifrada:")
+            print(mensagem, "\n")
+        
+        elif acao == "3":
+            cifra = input("Digite a cifra que será quebrada:")
+
+            
+
+            lingua = input("Qual lingua será utilizada para decifrar? (PT/EN) ")
+            print()
+            resposta = "s"
+            while resposta == "s":
+                tamanho = int(input("Qual tamanho de chave você deseja utilizar para quebrar a chave? "))
+                print()
+                
+                
+                print("Mensagem decifrada com a chave encontrada:\n")
+
+                resposta = input("Deseja tentar de novo com um tamanho diferente? (s/n)")
+                print()
+        elif acao == "4":
+            break
+
+        input()
     
-    t = [x[i:i+16] for i in range(0, len(x), 16)]
-    # print every i of t
-
-    print(t) """
-
-    """ input_string = "1234567890123456"
-    blocks = utils.separate_into_blocks_of_4_bytes(input_string)
-    print(blocks) """
-
-    
-    input_string = 0x8a31ce23035aba9848427a51befa2ff7
-    print(input_string)
-    print()
-
-    #expanded_key = key_expansion.expand_key_int(16, input_string)
-    #print(expanded_key)
-
-    # Example usage:
-    input_int = 0x8a31ce23035aba9848427a51befa2ff7
-    expanded_key = key_expansion.expand_key_int(16, input_int)
-    print(expanded_key)
-    """ for key_bytes in expanded_key:
-        print(key_bytes.hex()) """
-
-
+    print("EXIT")
