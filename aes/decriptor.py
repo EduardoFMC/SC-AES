@@ -1,5 +1,5 @@
-import utils as utils
-import key_expansion as expansion
+import aes.utils as utils
+import aes.key_expansion as expansion
 
 REVERSED_SBOX = [
     0x52, 0x09, 0x6A, 0xD5, 0x30, 0x36, 0xA5, 0x38, 0xBF, 0x40, 0xA3, 0x9E, 0x81, 0xF3, 0xD7, 0xFB,
@@ -62,7 +62,7 @@ L_TABLE = [
 def decripter_ECB(nomeArquivo, key, rounds):
     bytes_decripted = b''
 
-    sub_keys = expansion.expand_key(key)
+    sub_keys = expansion.expand_key_int(16, key)
 
     blocks_4bytes = utils.dec_prepare_mensage_ecb(nomeArquivo)
 

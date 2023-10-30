@@ -158,3 +158,13 @@ def hexor(hex1, hex2):
 		hexed = '0' + hexed
 		
 	return hexed
+
+#recebe uma string contendo um número em hexadecimal e retorna o mesmo em bytes
+def hex_to_bytes(hex_input):
+    try:
+        # Convert hexadecimal string to bytes
+        byte_data = bytes.fromhex(hex_input)
+        return byte_data
+    except ValueError:
+        print("Entrada de hexadecimal inválida")
+        return None

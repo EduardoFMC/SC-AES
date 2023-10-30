@@ -1,5 +1,5 @@
-import utils as utils
-import key_expansion as expansion
+import aes.utils as utils
+import aes.key_expansion as expansion
 
 SBOX = [
     0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67, 0x2B, 0xFE, 0xD7, 0xAB, 0x76,
@@ -62,7 +62,7 @@ L_TABLE = [
 def ctr(nomeArquivo, key, rounds, iv, mode):
     bytes_result = b''
     counter = int.from_bytes(iv, 'big')
-    sub_keys = expansion.expand_key(key)
+    sub_keys = expansion.expand_key_int(16, key)
     blocks_16bytes = utils.prepare_mensage_ctr(nomeArquivo, mode)
     
     for i in range(0, len(blocks_16bytes)):
@@ -95,7 +95,7 @@ def ctr(nomeArquivo, key, rounds, iv, mode):
 def cypher_ECB(nomeArquivo, key, rounds):
     bytes_encripted = b''
 
-    sub_keys = expansion.expand_key(key)
+    sub_keys = expansion.expand_key_int(16, key)
 
     blocks_4bytes = utils.prepare_mensage_ecb(nomeArquivo)
 
@@ -104,7 +104,7 @@ def cypher_ECB(nomeArquivo, key, rounds):
         for j in range(4):
             bytes_encripted = bytes_encripted + aux[j].to_bytes(4, 'big')
     
-    with open('test_encripted.txt', 'wb') as a:
+    with open('cifrado_ecb.txt', 'wb') as a:
         a.write(bytes_encripted)
         a.close()
 

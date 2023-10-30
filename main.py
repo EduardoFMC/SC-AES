@@ -10,6 +10,8 @@ this is the block in progress. """
 import re
 import math
 import hashlib, base64
+import aes.cypher as cypher
+import aes.decriptor as decriptor
 import aes.key_expansion as key_expansion
 import aes.utils as utils
 
@@ -33,7 +35,7 @@ SBOX = [
 ]
 
 if __name__ == "__main__":
-    
+
     acao = ""
 
     print("Bem vindo ao cifrador e decifrador AES: ECB e CTR\n")
@@ -50,63 +52,126 @@ if __name__ == "__main__":
 
         if acao == "1":
             mensagem = input("Digite nome do arquivo txt: ")
-            chave = input("Digite a chave que será usada para cifrar: ")
-            rodadas = int(input("Digite quantas rodadas serão aplicadas (máx. 10): "))
-
+            continua = True
+            chave = input("Digite a chave que será usada para cifrar (hexadecimal com exatamente 16 bytes): ")
+            while continua:
+                if len(chave) == 32:
+                    continua = False
+                else:
+                    chave = input("Chave com tamanho incorreto. Digite novamente(16bytes): ")
             
-            print("\nMensagem cifrada:\n")
-            print(cifra, "\n")
+            chave = utils.hex_to_bytes(chave)
+            if chave:
+                rodadas = int(input("Digite quantas rodadas serão aplicadas (máx. 10): "))
+                
+                aux = []
+                for i in range(0, 16, 4):
+                    aux.append(int.from_bytes(chave[i:i+4], 'big'))
+
+                cypher.cypher_ECB(mensagem, aux, rodadas)
+                print("txt cifrado!\n")
+            else:
+                continue
         
         elif acao == "2":
-            cifra = input("Digite a cifra que será decifrada: ")
-            chave = input("Digite a chave que será usada para decifrar: ")
-
+            mensagem = input("Digite nome do arquivo txt: ")
+            continua = True
+            chave = input("Digite a chave que será usada para cifrar (hexadecimal com exatamente 16 bytes): ")
+            while continua:
+                if len(chave) == 32:
+                    continua = False
+                else:
+                    chave = input("Chave com tamanho incorreto. Digite novamente(16bytes): ")
             
-            print("\nMensagem cifrada:")
-            print(mensagem, "\n")
+            chave = utils.hex_to_bytes(chave)
+            iv = input("Digite o vetor de 16 bytes: ")
+            iv = utils.hex_to_bytes(iv)
+            if chave and iv:
+                rodadas = int(input("Digite quantas rodadas serão aplicadas (máx. 10): "))
+                
+                aux = []
+                for i in range(0, 16, 4):
+                    aux.append(int.from_bytes(chave[i:i+4], 'big'))
+
+                cypher.ctr(mensagem, aux, rodadas, iv, "cif")
+                print("txt cifrado!\n")
+            else:
+                continue
         
         elif acao == "3":
-            cifra = input("Digite a cifra que será quebrada:")
-
+            mensagem = input("Digite nome do arquivo txt: ")
+            continua = True
+            chave = input("Digite a chave que será usada para decifrar (hexadecimal com exatamente 16 bytes): ")
+            while continua:
+                if len(chave) == 32:
+                    continua = False
+                else:
+                    chave = input("Chave com tamanho incorreto. Digite novamente(16bytes): ")
             
-
-            lingua = input("Qual lingua será utilizada para decifrar? (PT/EN) ")
-            print()
-            resposta = "s"
-            while resposta == "s":
-                tamanho = int(input("Qual tamanho de chave você deseja utilizar para quebrar a chave? "))
-                print()
+            chave = utils.hex_to_bytes(chave)
+            if chave:
+                rodadas = int(input("Digite quantas rodadas serão aplicadas (máx. 10): "))
                 
-                
-                print("Mensagem decifrada com a chave encontrada:\n")
+                aux = []
+                for i in range(0, 16, 4):
+                    aux.append(int.from_bytes(chave[i:i+4], 'big'))
 
-                resposta = input("Deseja tentar de novo com um tamanho diferente? (s/n)")
-                print()
+                decriptor.decripter_ECB(mensagem, aux, rodadas)
+                print("txt cifrado!\n")
+            else:
+                continue
+
         elif acao == "4":
+            mensagem = input("Digite nome do arquivo txt: ")
+            continua = True
+            chave = input("Digite a chave que será usada para decifrar (hexadecimal com exatamente 16 bytes): ")
+            while continua:
+                if len(chave) == 32:
+                    continua = False
+                else:
+                    chave = input("Chave com tamanho incorreto. Digite novamente(16bytes): ")
+            
+            chave = utils.hex_to_bytes(chave)
+            iv = input("Digite o vetor de 16 bytes: ")
+            iv = utils.hex_to_bytes(iv)
+            if chave and iv:
+                rodadas = int(input("Digite quantas rodadas serão aplicadas (máx. 10): "))
+                
+                aux = []
+                for i in range(0, 16, 4):
+                    aux.append(int.from_bytes(chave[i:i+4], 'big'))
+
+                cypher.ctr(mensagem, aux, rodadas, iv, "dec")
+                print("txt cifrado!\n")
+            else:
+                continue
+
+        elif acao == "5":
             break
 
         input()
     
     print("EXIT")
 
-    print("Trabalho 2 de Segurança Computacional :)\n")
-    
-
-    """ input_string = bytes("0123456789abcdef".encode("utf-8"))
-    print(input_string)
-    print()
-
-    expanded_key = key_expansion.expand_key(16, input_string)
-    print(expanded_key) """
-
-    # Example usage:
-    _16bytes = 0x11111111000000000000000000000000
-    words = []
-    for i in range(4):
-        words.append((_16bytes & (0xFFFFFFFF << 32*(3 - i))) >> 32*(3 - i))
-    print([hex(i) for i in words])
-    expanded_key = key_expansion.expand_key_int(16, words)
-    
-    print()
-    print(expanded_key)
-    print([hex(i) for i in expanded_key])
+    #print("Trabalho 2 de Segurança Computacional :)\n")
+    #
+#
+    #""" input_string = bytes("0123456789abcdef".encode("utf-8"))
+    #print(input_string)
+    #print()
+#
+    #expanded_key = key_expansion.expand_key(16, input_string)
+    #print(expanded_key) """
+#
+    ## Example usage:
+    #_16bytes = 0x11111111000000000000000000000000
+    #words = []
+    #for i in range(4):
+    #    words.append((_16bytes & (0xFFFFFFFF << 32*(3 - i))) >> 32*(3 - i))
+    #print([hex(i) for i in words])
+    #expanded_key = key_expansion.expand_key_int(16, words)
+    #
+    #print()
+    #print(expanded_key)
+    #print([hex(i) for i in expanded_key])
+#

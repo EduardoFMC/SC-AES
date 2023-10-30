@@ -106,17 +106,24 @@ def expand_key_int(KeySize: int, key_original: int):
 
     expanded_key = []
 
+    #K function returns 4 bytes of the Key after the specified offset. For example if offset is 0 then K will return
+    # bytes 0,1,2,3 of the Expanded Key
     def K(offset: int): return key_original[ offset ]
 
+    # EK function returns 4 bytes of the Expanded Key after the specified offset. For example if offset is 0 then
+    # EK will return bytes 0,1,2,3 of the Expanded Key
     def EK(offset: int): return expanded_key[ offset//4 ]
 
+    #returns a 4 byte value based on the RCON table 
     def Rcon(round: int):
 
         i = int(( round/(KeySize/4) ) -1)
         return RCON[i]
     
+    # circular shift on 4 bytes similar
     def RotWord(word: bytes): return (((word << 8) | ((word >> 24) & 0xFF)) & 0xFFFFFFFF)
     
+    # S-box value substitution
     def SubWord(word: int):
     
         aux = 0
@@ -139,18 +146,11 @@ def expand_key_int(KeySize: int, key_original: int):
             b = Rcon(index)
             c = EK((index-4)*4)
             x= a ^ b
-            #print("a: ", hex(a))
-            #print("b: ", hex(b))
-            #print("c: ", hex(c))
-            #print("x: ", hex(x))
-            #expanded_key.append(bytes((xor(xor(a, [b,0,0,0]), c))))
             expanded_key.append(x ^ c)
 
         else: 
-            # expanded_key.append(bytes((xor(EK((index-1)*4), EK((index-4)*4)))))
+    
             expanded_key.append(((EK((index-1)*4) ^ EK((index-4)*4))))
         
 
     return expanded_key
-
-
