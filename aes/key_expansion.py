@@ -3,7 +3,7 @@
 import re
 import math
 import hashlib, base64
-from utils import xor
+from aes.utils import xor
 
 RCON = [
     0x01000000, 0x02000000, 0x04000000, 0x08000000, 0x10000000, 0x20000000, 0x40000000,
@@ -77,15 +77,28 @@ def expand_key(KeySize: int, key_original: list[bytes]):
             a = SubWord(RotWord(EK((index-1)*4)))
             b = Rcon(index)
             c = EK((index-4)*4)
-            #x= xor(a, [b,0,0,0])
-            
+            x= xor(a, [b,0,0,0])
+
+            print("a: ", (a))
+            print("b: ", hex(b))
+            print("c: ", (c))
+            print("x: ", (x))
+
             #expanded_key.append(bytes((xor(xor(a, [b,0,0,0]), c))))
-            expanded_key.append(((xor(xor(a, [b,0,0,0]), c))))
+            for i in range(4):
+                expanded_key.append(x[i] ^ c[i])
+            #expanded_key.append((xor(xor(a, [b,0,0,0]), c)))
 
         else: 
             # expanded_key.append(bytes((xor(EK((index-1)*4), EK((index-4)*4)))))
-            expanded_key.append(((xor(EK((index-1)*4), EK((index-4)*4)))))
-
+            a = EK((index-1)*4)
+            b = EK((index-4)*4)
+            print("a: ", hex(a))
+            print("b: ", b)
+            """ for i in range(4):
+                expanded_key.append(EK((index-1)*4)[i] ^ EK((index-4)*4)[i]) """
+            #expanded_key.append(((xor(EK((index-1)*4), EK((index-4)*4)))))
+        if index == 5:break
     return (expanded_key)
 
 

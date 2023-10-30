@@ -35,22 +35,7 @@ SBOX = [
 if __name__ == "__main__":
     print("Trabalho 2 de Segurança Computacional :)\n")
     
-    with open("key.txt", "rb") as f:
-        s = f.read()
-        
-    """ x = utils.padding(s)
-    print(x)
-    
-    t = [x[i:i+16] for i in range(0, len(x), 16)]
-    # print every i of t
 
-    print(t) """
-
-    """ input_string = "1234567890123456"
-    blocks = utils.separate_into_blocks_of_4_bytes(input_string)
-    print(blocks) """
-
-    
     """ input_string = bytes("0123456789abcdef".encode("utf-8"))
     print(input_string)
     print()
@@ -69,7 +54,6 @@ if __name__ == "__main__":
     print()
     print(expanded_key)
     print([hex(i) for i in expanded_key])
-    """ for key_bytes in expanded_key:
-        print(key_bytes.hex()) """
+   
 
 
